@@ -1,0 +1,1 @@
+g++ ./src/*.cpp -I./src/ `wx-config --cxxflags --libs` -o ./bin/main
