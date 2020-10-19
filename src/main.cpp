@@ -2,9 +2,9 @@
 #include <wx/wxprec.h>
 #ifndef WX_PRECOMP
     #include <wx/wx.h>
-    #include <wx/listbox.h>
-    #include <wx/listctrl.h>
 #endif
+#include <wx/listbox.h>
+#include <wx/listctrl.h>
 
 #include "TargetList.h"
 
@@ -124,7 +124,7 @@ void MyFrame::onMyListSelection(wxListEvent& event)
 {
 	wxPrintf("Caught selection event, item %ld\n", event.GetIndex());
 	// try to deselect the item?
-	editList->SetItemState(event.GetIndex(),0,wxLIST_STATE_SELECTED);
+	editList->SetItemState(event.GetIndex(),0,wxLIST_STATE_SELECTED | wxLIST_STATE_FOCUSED);
 }
 
 void MyFrame::onSpecificButton(wxCommandEvent& event)

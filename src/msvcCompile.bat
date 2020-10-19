@@ -1,0 +1,1 @@
+cl main.cpp TargetList.cpp H:\wxWidgets-3.1.4-bin\lib\vc14x_x64_dll\*u.lib H:\wxWidgets-3.1.4-bin\lib\vc14x_x64_dll\*u_*.lib /IH:\wxWidgets-3.1.4-bin\lib\vc14x_x64_dll\mswu /IH:\wxWidgets-3.1.4-bin\include\msvc /D"__WXMSW__" /IH:\wxWidgets-3.1.4-bin\include /EHsc /D"WXUSINGDLL"
