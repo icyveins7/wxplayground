@@ -25,6 +25,7 @@ private:
     void onOk(wxCommandEvent& event);
     void onSpecificButton(wxCommandEvent& event);
     void onMyListSelection(wxListEvent& event);
+    void onMyListDeselection(wxListEvent& event);
 
     wxTextCtrl *control;
     wxListCtrl *editList;
@@ -116,15 +117,50 @@ MyFrame::MyFrame()
 	hbox1->Add(editList,1,wxEXPAND|wxALL);
 	editList->SetItemState(0, 0, wxLIST_STATE_SELECTED | wxLIST_STATE_FOCUSED);
 
-	Bind(wxEVT_LIST_ITEM_SELECTED, &MyFrame::onMyListSelection, this, editList->GetId());
+	// Bind(wxEVT_LIST_ITEM_SELECTED, &MyFrame::onMyListSelection, this, editList->GetId());
+	Bind(wxEVT_LIST_ITEM_DESELECTED, &MyFrame::onMyListDeselection, this, editList->GetId());
+}
+
+void MyFrame::onMyListDeselection(wxListEvent& event)
+{
+	wxPrintf("Caught deselection event. item %ld\n", event.GetIndex());
+
+	// check selection?
+	long item = -1;
+
+	while((item = editList->GetNextItem(item,  wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED)) != wxNOT_FOUND){
+		wxPrintf("Item %ld is selected\n", item);
+	}
+
+	// query mouse position?
+	int flags;
+	wxPoint mousePos = editList->ScreenToClient(wxGetMousePosition());
+	long hititem = editList->HitTest(mousePos, flags);
+
+	wxPrintf("Hit item %ld, flags = %d, mousepos = %d, %d\n", hititem, flags, mousePos.x, mousePos.y);
+
+	if (hititem < 0){
+		wxPrintf("Clicked in empty space?\n");
+		// clear all focus?
+		item = -1;
+		while((item = editList->GetNextItem(item,  wxLIST_NEXT_ALL, wxLIST_STATE_FOCUSED)) != wxNOT_FOUND){
+			wxPrintf("Item %ld is focused, defocusing..\n", item);
+			editList->SetItemState(item, 0, wxLIST_STATE_FOCUSED);
+		}
+	}
+	wxPrintf("exited event handler\n");
 
 }
 
 void MyFrame::onMyListSelection(wxListEvent& event)
 {
 	wxPrintf("Caught selection event, item %ld\n", event.GetIndex());
-	// try to deselect the item?
-	editList->SetItemState(event.GetIndex(),0,wxLIST_STATE_SELECTED | wxLIST_STATE_FOCUSED);
+	// get mouse position?
+	wxPoint mousePos = editList->ScreenToClient(wxGetMousePosition()); // make sure you use the widget's own ScreenToClient! otherwise its wrong coords!
+
+	int flags;
+	long hititem = editList->HitTest(mousePos, flags);
+	wxPrintf("Hit item %ld, flags = %d, mousepos = %d, %d\n", hititem, flags, mousePos.x, mousePos.y);
 }
 
 void MyFrame::onSpecificButton(wxCommandEvent& event)
