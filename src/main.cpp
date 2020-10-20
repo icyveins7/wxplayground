@@ -29,6 +29,7 @@ private:
 
     wxTextCtrl *control;
     wxListCtrl *editList;
+    wxListView *lstview;
 };
 enum
 {
@@ -75,10 +76,10 @@ MyFrame::MyFrame()
 	// wxPanel *toppanel = new wxPanel(this,-1);
 	// hbox1->Add(toppanel, 1, wxEXPAND | wxALL); // add a new PANEL (like another group box ) to horizontal layout
 
-	wxListBox *list = new wxListBox(this, wxID_ANY);
+	// wxListBox *list = new wxListBox(this, wxID_ANY);
 	wxString testlistitem = "first item";
-	list->InsertItems(1, &testlistitem, 0);
-	hbox1->Add(list, 1, wxEXPAND | wxALL); // expand the list to occupy this sizer
+	// list->InsertItems(1, &testlistitem, 0);
+	// hbox1->Add(list, 1, wxEXPAND | wxALL); // expand the list to occupy this sizer
 	hbox1->Add(random, 0);
 	vbox->Add(hbox1, 1, wxEXPAND | wxALL);// add horizontal layout to vertical layout, expand horizontal sizer to fill up the whole pane
 
@@ -116,51 +117,52 @@ MyFrame::MyFrame()
 	editList->InsertItem(0,wxString("added after, on top"));
 	hbox1->Add(editList,1,wxEXPAND|wxALL);
 	editList->SetItemState(0, 0, wxLIST_STATE_SELECTED | wxLIST_STATE_FOCUSED);
+	editList->SetItemState(1, 0, wxLIST_STATE_SELECTED | wxLIST_STATE_FOCUSED);
 
-	// Bind(wxEVT_LIST_ITEM_SELECTED, &MyFrame::onMyListSelection, this, editList->GetId());
+	Bind(wxEVT_LIST_ITEM_SELECTED, &MyFrame::onMyListSelection, this, editList->GetId());
 	Bind(wxEVT_LIST_ITEM_DESELECTED, &MyFrame::onMyListDeselection, this, editList->GetId());
+
+	// // maybe these problems are better off with listview?
+	// lstview = new wxListView(this, wxID_ANY);
+	// lstview->SetWindowStyleFlag(wxLC_LIST | wxLC_EDIT_LABELS);
+	// lstview->InsertItem(0,wxString("this is a listview"));
+	// hbox1->Add(lstview,1,wxEXPAND|wxALL);
+	//
+	// wxPrintf("Check if listview item in focus? %ld\n", lstview->GetFocusedItem());
 }
 
 void MyFrame::onMyListDeselection(wxListEvent& event)
 {
 	wxPrintf("Caught deselection event. item %ld\n", event.GetIndex());
 
-	// check selection?
-	long item = -1;
-
-	while((item = editList->GetNextItem(item,  wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED)) != wxNOT_FOUND){
-		wxPrintf("Item %ld is selected\n", item);
-	}
-
+	// check focus for deselected item
 	// query mouse position?
 	int flags;
 	wxPoint mousePos = editList->ScreenToClient(wxGetMousePosition());
 	long hititem = editList->HitTest(mousePos, flags);
 
-	wxPrintf("Hit item %ld, flags = %d, mousepos = %d, %d\n", hititem, flags, mousePos.x, mousePos.y);
+	// wxPrintf("Hit item %ld, flags = %d, mousepos = %d, %d\n", hititem, flags, mousePos.x, mousePos.y);
 
 	if (hititem < 0){
 		wxPrintf("Clicked in empty space?\n");
-		// clear all focus?
-		item = -1;
-		while((item = editList->GetNextItem(item,  wxLIST_NEXT_ALL, wxLIST_STATE_FOCUSED)) != wxNOT_FOUND){
-			wxPrintf("Item %ld is focused, defocusing..\n", item);
-			editList->SetItemState(item, 0, wxLIST_STATE_FOCUSED);
-		}
+		// query state of deselected item
+		int deselectedState = editList->GetItemState(event.GetIndex(), wxLIST_STATE_FOCUSED);
+		wxPrintf("Deselected item state = %d, focused state = %d\n", deselectedState, wxLIST_STATE_FOCUSED);
+		// attempt to defocus it?
+		wxPrintf("Return code of defocus setstate = %d\n", editList->SetItemState(event.GetIndex(), 0, wxLIST_STATE_FOCUSED));
 	}
-	wxPrintf("exited event handler\n");
 
 }
 
 void MyFrame::onMyListSelection(wxListEvent& event)
 {
-	wxPrintf("Caught selection event, item %ld\n", event.GetIndex());
-	// get mouse position?
-	wxPoint mousePos = editList->ScreenToClient(wxGetMousePosition()); // make sure you use the widget's own ScreenToClient! otherwise its wrong coords!
-
-	int flags;
-	long hititem = editList->HitTest(mousePos, flags);
-	wxPrintf("Hit item %ld, flags = %d, mousepos = %d, %d\n", hititem, flags, mousePos.x, mousePos.y);
+	wxPrintf("================== Caught selection event, item %ld\n", event.GetIndex());
+	// // get mouse position?
+	// wxPoint mousePos = editList->ScreenToClient(wxGetMousePosition()); // make sure you use the widget's own ScreenToClient! otherwise its wrong coords!
+	//
+	// int flags;
+	// long hititem = editList->HitTest(mousePos, flags);
+	// wxPrintf("Hit item %ld, flags = %d, mousepos = %d, %d\n", hititem, flags, mousePos.x, mousePos.y);
 }
 
 void MyFrame::onSpecificButton(wxCommandEvent& event)
